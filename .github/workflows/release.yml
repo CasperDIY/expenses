@@ -1,0 +1,75 @@
+# Push a tag such as v1.2.0 (it must match the VERSION file) to publish a release:
+#   - Docker image ghcr.io/<owner>/<repo>:<version> and :latest (amd64, arm64, armv7)
+#   - GitHub release with Expenses.html (local edition), Code.gs + index.html + appsscript*.json (Google edition),
+#     demo.html and a docker-compose.yml that points to this repository's image
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tag must match the VERSION file
+        run: |
+          test "v$(cat VERSION)" = "$GITHUB_REF_NAME" || { echo "Tag $GITHUB_REF_NAME does not match VERSION $(cat VERSION)"; exit 1; }
+          echo "VERSION=$(cat VERSION)" >> "$GITHUB_ENV"
+          echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Build the editions
+        run: |
+          sh build/all.sh
+          sed -E "s#image: ghcr.io/[^:]+:#image: ${IMAGE}:#" docker-compose.yml > dist/docker-compose.yml
+          python3 tools/release_notes.py "$VERSION" > dist/notes.md
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          push: true
+          build-args: EXPENSES_REPO=${{ github.repository }}
+          tags: |
+            ${{ env.IMAGE }}:${{ env.VERSION }}
+            ${{ env.IMAGE }}:latest
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ env.VERSION }}
+            org.opencontainers.image.title=Expenses
+            org.opencontainers.image.description=Personal monthly budget: income, bills and savings goals
+
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          files="dist/Expenses.html dist/Code.gs dist/index.html dist/appsscript.json dist/appsscript-autoupdate.json dist/demo.html dist/docker-compose.yml"
+          # the release may already exist when the tag was made with "Draft a new release" on github.com
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release edit "$GITHUB_REF_NAME" --title "Expenses $VERSION" --notes-file dist/notes.md
+            gh release upload "$GITHUB_REF_NAME" $files --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" --title "Expenses $VERSION" --notes-file dist/notes.md $files
+          fi
