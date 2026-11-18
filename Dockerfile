@@ -15,7 +15,7 @@ RUN apk add --no-cache tzdata \
 WORKDIR /app
 COPY app/ /app/
 COPY VERSION /app/VERSION
-# the database is /data/expenses.db (an existing /data/stroski.db from before the rename is used as is)
+# the database is /data/expenses.db
 # starts as root, sets the owner of /data and then drops privileges to PUID/PGID (default 1000)
 
 EXPOSE 8080

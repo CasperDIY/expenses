@@ -1,4 +1,4 @@
-/* Google Apps Script edition: data lives in Google Drive (folder "Expenses", or "Stroški" for installs from before the rename). */
+/* Google Apps Script edition: data lives in Google Drive (folder "Expenses"). */
 (function () {
   "use strict";
   const T = (s, v) => (window.I18N ? window.I18N.t(s, v) : s);
@@ -18,12 +18,11 @@
   L.deleteBackup = (name) => run("deleteBackup", name).catch(() => {});
   L.readBackup = (name) => run("readBackup", name);
   L.latestRelease = () => run("latestRelease");
-  // backup names: expenses-YYYY-MM-DD_HHMMSS-<kind>.json; "stroski-…" with Slovenian kinds is the pre-rename format
-  const BK_RE = /^(?:expenses|stroski)-(\d{4}-\d{2}-\d{2})_(\d{2})(\d{2})(\d{2})-(auto|manual|pre-restore|rocno|pred-obnovo)\.json$/;
-  const LEGACY_KINDS = { rocno: "manual", "pred-obnovo": "pre-restore" };
+  // backup names: expenses-YYYY-MM-DD_HHMMSS-<kind>.json
+  const BK_RE = /^expenses-(\d{4}-\d{2}-\d{2})_(\d{2})(\d{2})(\d{2})-(auto|manual|pre-restore)\.json$/;
   function parseBk(name) {
     const m = BK_RE.exec(name);
-    return m ? { name, kind: LEGACY_KINDS[m[5]] || m[5], created: `${m[1]}T${m[2]}:${m[3]}:${m[4]}` } : null;
+    return m ? { name, kind: m[5], created: `${m[1]}T${m[2]}:${m[3]}:${m[4]}` } : null;
   }
   function backupMeta(list) {
     return (list || []).map(({ name, size }) => {

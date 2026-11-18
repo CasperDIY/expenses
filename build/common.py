@@ -82,7 +82,7 @@ JSON_IMPORT_JS = r'''
     if (!f) return;
     try {
       const data = JSON.parse(await f.text());
-      if (!data || !["expenses", "stroski"].includes(data.app) || !data.db || !Array.isArray(data.db.entries)) throw new Error(t("To ni datoteka s podatki aplikacije Expenses."));
+      if (!data || data.app !== "expenses" || !data.db || !Array.isArray(data.db.entries)) throw new Error(t("To ni datoteka s podatki aplikacije Expenses."));
       pending = data;
       const d = data.db, months = new Set(d.entries.map((e) => e.date.slice(0, 7)));
       const summary = t("{e} vnosov v {m} mesecih, {c} kategorij, {g} ciljev, {r} ponavljajočih predlog", {
@@ -161,9 +161,7 @@ def folder_backend(be):
     return JSON.parse(JSON.stringify(out));
   };
   window.demoReset = () => { seed(); };
-  if (!bk.items.length) { makeBk("auto"); bk.last_auto = isoLocal(new Date()); bkSave(); }''', '''  // "stroski" is the marker of data saved before the project was renamed
-  const APP_IDS = ["expenses", "stroski"];
-  function emptyDb() {
+  if (!bk.items.length) { makeBk("auto"); bk.last_auto = isoLocal(new Date()); bkSave(); }''', '''  function emptyDb() {
     db = { categories: [], goals: [], recurring: [], generated: {}, entries: [], seq: {}, monthSettings: {} };
     for (const [name, kind, color] of CATS) db.categories.push({ id: nextId("categories"), name, kind, budget: 0, color, archived: 0 });
   }
@@ -175,7 +173,7 @@ def folder_backend(be):
     if (!bk.items.length) { makeBk("auto"); bk.last_auto = isoLocal(new Date()); }
   };
   window.LOCAL.replaceAll = (data) => {
-    if (!data || !APP_IDS.includes(data.app) || !data.db || !Array.isArray(data.db.entries) || !Array.isArray(data.db.categories)) fail("To ni datoteka s podatki aplikacije Expenses.");
+    if (!data || data.app !== "expenses" || !data.db || !Array.isArray(data.db.entries) || !Array.isArray(data.db.categories)) fail("To ni datoteka s podatki aplikacije Expenses.");
     const safety = makeBk("pre-restore");
     db = data.db;
     db.generated = db.generated || {}; db.seq = db.seq || {}; db.monthSettings = db.monthSettings || {};

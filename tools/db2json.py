@@ -1,4 +1,4 @@
-"""Convert the NAS database (expenses.db, or stroski.db from before the rename) into expenses-data.json for the Google/local editions."""
+"""Convert the NAS database (expenses.db) into expenses-data.json for the Google/local editions."""
 import json, sqlite3, sys
 from datetime import datetime
 

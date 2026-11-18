@@ -80,10 +80,6 @@ Podatki so v mapi **Expenses** v tvojem Drivu, s preglednico *Expenses – overv
 
 ## Posodobitve
 
-**Prehod s »Stroški«:** projekt se zdaj imenuje Expenses. Obstoječi podatki delujejo brez sprememb: strežnik še naprej uporablja
-`data/stroski.db`, lokalna in Google različica obdržita datoteko `stroski-podatki.json` in mapo *Stroški* v Drivu, stare varnostne kopije pa so vidne in jih lahko obnoviš.
-Spremeni se le ime Docker slike: v `docker-compose.yml` uporabi `ghcr.io/casperdiy/expenses:latest`.
-
 Posodobitve so **neobvezne**. V aplikaciji lahko v *Nastavitve → Posodobitve* vklopiš preverjanje nove različice ob odprtju (privzeto izklopljeno; prebere se samo številka različice, ničesar se ne pošilja).
 
 - **Docker / Synology** – *Container Manager → Slika →* izberi sliko → **Posodobi**, ali `docker compose pull && docker compose up -d`. Mapa `data` ostane nedotaknjena.

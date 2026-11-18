@@ -4,7 +4,6 @@
  *   expenses-data.json    – all data
  *   backups/              – backups
  *   Expenses – overview   – Google Sheet with every entry (view only, refreshed after each save)
- * Installs from before the rename keep their folder "Stroški" and file "stroski-podatki.json".
  * User-facing error messages stay in Slovenian; the web page translates them (i18n).
  */
 // filled in when the release is built (build/build_gas_files.py)
@@ -12,11 +11,10 @@ const APP_VERSION = '__APP_VERSION__';
 const GITHUB_REPO = '__GITHUB_REPO__';
 
 const APP_FOLDER = 'Expenses';
-const LEGACY_FOLDER = 'Stroški';
-const DATA_FILES = ['expenses-data.json', 'stroski-podatki.json'];
+const DATA_FILE = 'expenses-data.json';
 const BK_FOLDER = 'backups';
 const SHEET_TITLE = 'Expenses – overview';
-const BK_NAME_RE = /^(?:expenses|stroski)-\d{4}-\d{2}-\d{2}_\d{6}-(auto|manual|pre-restore|rocno|pred-obnovo)\.json$/;
+const BK_NAME_RE = /^expenses-\d{4}-\d{2}-\d{2}_\d{6}-(auto|manual|pre-restore)\.json$/;
 
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('index')
@@ -39,8 +37,8 @@ function folder_() {
     if (!f.isTrashed()) return f;
   }
   const root = DriveApp.getRootFolder();
-  const found = root.getFoldersByName(APP_FOLDER), legacy = root.getFoldersByName(LEGACY_FOLDER);
-  const f = found.hasNext() ? found.next() : legacy.hasNext() ? legacy.next() : root.createFolder(APP_FOLDER);
+  const found = root.getFoldersByName(APP_FOLDER);
+  const f = found.hasNext() ? found.next() : root.createFolder(APP_FOLDER);
   props_().setProperty('FOLDER_ID', f.getId());
   return f;
 }
@@ -57,13 +55,9 @@ function fileIn_(folder, name) {
   return null;
 }
 
-/** The data file: the pre-rename name if that is what the folder has, otherwise the new one. */
+/** The data file in the app folder (file is null until the first save). */
 function dataFile_(folder) {
-  for (let i = 0; i < DATA_FILES.length; i++) {
-    const f = fileIn_(folder, DATA_FILES[i]);
-    if (f) return { file: f, name: DATA_FILES[i] };
-  }
-  return { file: null, name: DATA_FILES[0] };
+  return { file: fileIn_(folder, DATA_FILE), name: DATA_FILE };
 }
 
 function version_() { return props_().getProperty('VERSION') || '0'; }

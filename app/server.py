@@ -2,7 +2,7 @@
 
 Python standard library only: http.server + sqlite3.
 Configuration through environment variables:
-  DB_PATH        database path (default /data/expenses.db; an existing /data/stroski.db from older versions is used as is)
+  DB_PATH        database path (default /data/expenses.db)
   BACKUP_DIR     backup folder (default: "backups" next to the database)
   PORT           port (default 8080)
   APP_USER       login user name (empty: no login)
@@ -30,13 +30,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-def _default_db_path():
-    """New installs use expenses.db; installs from before the rename keep their stroski.db."""
-    new, old = Path("/data/expenses.db"), Path("/data/stroski.db")
-    return str(old if old.exists() and not new.exists() else new)
-
-
-DB_PATH = os.environ.get("DB_PATH") or _default_db_path()
+DB_PATH = os.environ.get("DB_PATH") or "/data/expenses.db"
 PORT = int(os.environ.get("PORT", "8080"))
 APP_USER = os.environ.get("APP_USER", "")
 APP_PASSWORD = os.environ.get("APP_PASSWORD", "")
@@ -52,11 +46,10 @@ def _read_version():
 
 APP_VERSION = _read_version()
 # GitHub "owner/name" for the optional update check in Settings (set by the Docker image build)
-GITHUB_REPO = os.environ.get("EXPENSES_REPO") or os.environ.get("STROSKI_REPO", "")
+GITHUB_REPO = os.environ.get("EXPENSES_REPO", "")
 BACKUP_DIR = Path(os.environ.get("BACKUP_DIR") or (Path(DB_PATH).parent / "backups"))
-# backup file names: expenses-YYYY-MM-DD_HHMMSS-<kind>.db; "stroski-…" with Slovenian kinds is the pre-rename format
-BACKUP_NAME_RE = re.compile(r"^(?:expenses|stroski)-(\d{4}-\d{2}-\d{2})_(\d{2})(\d{2})(\d{2})-(auto|manual|pre-restore|rocno|pred-obnovo)\.db$")
-LEGACY_KINDS = {"rocno": "manual", "pred-obnovo": "pre-restore"}
+# backup file names: expenses-YYYY-MM-DD_HHMMSS-<kind>.db
+BACKUP_NAME_RE = re.compile(r"^expenses-(\d{4}-\d{2}-\d{2})_(\d{2})(\d{2})(\d{2})-(auto|manual|pre-restore)\.db$")
 
 KINDS = ("income", "expense", "saving")
 YM_RE = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
@@ -1076,7 +1069,7 @@ def list_backups():
         m = BACKUP_NAME_RE.match(f.name)
         if f.is_file() and m:
             day, hh, mm, ss, kind = m.groups()
-            out.append({"name": f.name, "size": f.stat().st_size, "kind": LEGACY_KINDS.get(kind, kind),
+            out.append({"name": f.name, "size": f.stat().st_size, "kind": kind,
                         "created": f"{day}T{hh}:{mm}:{ss}"})
     return sorted(out, key=lambda b: b["created"], reverse=True)
 
@@ -1306,43 +1299,13 @@ class Handler(BaseHTTPRequestHandler):
         goals = [{"name": g["name"], "saved": g["saved"], "target": g["target"], "percent": round(g["progress"] * 100, 1),
                   "needed_this_month": g["needed_this_month"]} for g in s["goals"]]
         last_backup = (list_backups() or [{}])[0].get("created")
-        english = {
+        return {
             "month": ym, "income": s["totals"]["income"], "expenses": s["totals"]["expense"], "savings": s["totals"]["saving"],
             "carried_over": s["carry_in"], "month_end": s["closing"],
             "account_balance": s["account"].get("now"), "account_balance_month_end": s["account"].get("end"),
             "still_to_save": s["planned_savings"], "left_to_spend": s["available"], "free_to_spend": s["free_to_spend"],
             "per_day": s["per_day"], "unpaid_bills": s["unpaid_expense"], "overdue_bills": s["overdue_expense"],
             "overdue_count": s["overdue_count"], "days_left": s["days_left"], "last_backup": last_backup, "goals": goals,
-        }
-        # the Slovenian keys are kept so Home Assistant configurations from version 1.0 keep working
-        return english | {
-            "mesec": ym,
-            "prihodki": s["totals"]["income"],
-            "stroski": s["totals"]["expense"],
-            "varcevanje": s["totals"]["saving"],
-            "prenos": s["carry_in"],
-            "koncno_stanje": s["closing"],
-            "stanje_na_racunu": s["account"].get("now"),
-            "stanje_konec_meseca": s["account"].get("end"),
-            "se_za_varcevati": s["planned_savings"],
-            "na_voljo": s["available"],
-            "prosto_za_porabo": s["free_to_spend"],
-            "na_dan": s["per_day"],
-            "neplacani_racuni": s["unpaid_expense"],
-            "zapadli_racuni": s["overdue_expense"],
-            "stevilo_zapadlih": s["overdue_count"],
-            "dni_do_konca": s["days_left"],
-            "zadnja_varnostna_kopija": last_backup,
-            "cilji": [
-                {
-                    "ime": g["name"],
-                    "privarcevano": g["saved"],
-                    "cilj": g["target"],
-                    "odstotek": round(g["progress"] * 100, 1),
-                    "ta_mesec_potrebno": g["needed_this_month"],
-                }
-                for g in s["goals"]
-            ],
         }
 
     def api(self, method, parts, qs):
@@ -1523,7 +1486,7 @@ def prepare_data_dir():
             gid = int(os.environ.get("PGID", "1000"))
             try:
                 BACKUP_DIR.mkdir(parents=True, exist_ok=True)
-                for p in [data_dir, *data_dir.glob(Path(DB_PATH).name + "*"), BACKUP_DIR, *BACKUP_DIR.glob("expenses-*.db"), *BACKUP_DIR.glob("stroski-*.db")]:
+                for p in [data_dir, *data_dir.glob(Path(DB_PATH).name + "*"), BACKUP_DIR, *BACKUP_DIR.glob("expenses-*.db")]:
                     os.chown(p, uid, gid)
                 os.setgid(gid)
                 os.setuid(uid)

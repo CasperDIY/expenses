@@ -90,10 +90,6 @@ Data is stored in the folder **Expenses** in your Drive, with a Google Sheet *Ex
 
 ## Updates
 
-**Coming from "Stroški"?** The project was renamed to Expenses. Existing data keeps working without any change: the server still uses
-`data/stroski.db`, the local and Google editions keep the file `stroski-podatki.json` and the Drive folder *Stroški*, and old backups are listed and can be restored.
-Only the Docker image name changes: in `docker-compose.yml` use `ghcr.io/casperdiy/expenses:latest`.
-
 Updates are **optional**. In the app, *Settings → Updates* can check GitHub for a new version when the app opens (off by default; only the version number is read, nothing is sent). How to update:
 
 - **Docker / Synology** – *Container Manager → Image →* select the image → **Update** (the container restarts with the new version), or `docker compose pull && docker compose up -d`. Your `data` folder is not touched.
@@ -112,7 +108,6 @@ Updates are **optional**. In the app, *Settings → Updates* can check GitHub fo
 
 `GET http://SERVER:8080/api/ha/summary` with header `Authorization: Bearer <API_TOKEN>` returns the current month as JSON
 (`left_to_spend`, `per_day`, `free_to_spend`, `income`, `expenses`, `savings`, `account_balance`, `unpaid_bills`, `overdue_count`, `days_left`, `goals` …).
-The Slovenian keys of version 1.0 (`na_voljo`, `na_dan`, …) are still included, so older configurations keep working.
 
 ```yaml
 # configuration.yaml

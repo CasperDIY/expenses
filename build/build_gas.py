@@ -14,7 +14,7 @@ be = rep(be, '''  window.demoApi = async (method, path, body) => {
 layer = read("src/gas-layer.js")
 
 body = page_body()
-body = rep(body, NAS_DATA_CARD, '''      <p class="hint">Vsi podatki so v tvojem Google Drivu v mapi aplikacije (<b>Expenses</b>, pri starejših namestitvah <b>Stroški</b>): datoteka s podatki, varnostne kopije v podmapi <code>backups</code> in preglednica z vsemi vnosi (samo za ogled).</p>
+body = rep(body, NAS_DATA_CARD, '''      <p class="hint">Vsi podatki so v tvojem Google Drivu v mapi <b>Expenses</b>: datoteka s podatki, varnostne kopije v podmapi <code>backups</code> in preglednica z vsemi vnosi (samo za ogled).</p>
       <div class="data-actions">
         <a class="btn ghost" id="drive-folder" target="_blank" rel="noopener" hidden>Odpri mapo v Drivu</a>
         <a class="btn ghost" id="drive-sheet" target="_blank" rel="noopener" hidden>Odpri preglednico</a>

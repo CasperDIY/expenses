@@ -26,8 +26,7 @@
   const norm = (s) => String(s).replace(/\s+/g, " ").trim();
 
   function detect() {
-    // "stroski-lang" is the key used before the project was renamed
-    try { const s = localStorage.getItem("expenses-lang") || localStorage.getItem("stroski-lang"); if (LANGS.includes(s)) return s; } catch (e) { /* storage unavailable */ }
+    try { const s = localStorage.getItem("expenses-lang"); if (LANGS.includes(s)) return s; } catch (e) { /* storage unavailable */ }
     const nav = (navigator.language || "sl").slice(0, 2).toLowerCase();
     return LANGS.includes(nav) ? nav : "sl";
   }

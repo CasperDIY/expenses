@@ -24,7 +24,7 @@ class ServerTest(unittest.TestCase):
     def setUpClass(cls):
         cls.tmp = tempfile.TemporaryDirectory()
         cls.port = free_port()
-        env = dict(os.environ, DB_PATH=os.path.join(cls.tmp.name, "stroski.db"), PORT=str(cls.port),
+        env = dict(os.environ, DB_PATH=os.path.join(cls.tmp.name, "expenses.db"), PORT=str(cls.port),
                    EXPENSES_REPO="example/expenses", APP_USER="", APP_PASSWORD="", API_TOKEN="secret")
         cls.proc = subprocess.Popen([sys.executable, str(ROOT / "app" / "server.py")], env=env,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -78,7 +78,7 @@ class ServerTest(unittest.TestCase):
     def test_home_assistant_needs_token(self):
         with self.assertRaises(urllib.error.HTTPError):
             self.get("/api/ha/summary")
-        self.assertIn("na_voljo", self.get("/api/ha/summary", headers={"Authorization": "Bearer secret"}))
+        self.assertIn("left_to_spend", self.get("/api/ha/summary", headers={"Authorization": "Bearer secret"}))
 
     def test_language_is_kept_with_the_data(self):
         self.call("PUT", "/api/prefs", {"lang": "de"})
@@ -86,19 +86,14 @@ class ServerTest(unittest.TestCase):
         with self.assertRaises(urllib.error.HTTPError):
             self.call("PUT", "/api/prefs", {"lang": "xx"})
 
-    def test_home_assistant_english_and_legacy_keys(self):
+    def test_home_assistant_summary(self):
         d = self.get("/api/ha/summary", headers={"Authorization": "Bearer secret"})
-        self.assertEqual(d["left_to_spend"], d["na_voljo"])
+        self.assertIn("left_to_spend", d)
         self.assertIn("goals", d)
 
-    def test_backups_from_before_the_rename_are_listed(self):
-        bk = Path(self.tmp.name) / "backups"
-        bk.mkdir(exist_ok=True)
-        (bk / "stroski-2026-01-02_030405-rocno.db").write_bytes(b"")
+    def test_manual_backup_name(self):
         self.call("POST", "/api/backups")
         items = self.get("/api/backups")["backups"]
-        old = next(b for b in items if b["name"].startswith("stroski-"))
-        self.assertEqual((old["kind"], old["created"]), ("manual", "2026-01-02T03:04:05"))
         self.assertTrue(any(b["name"].startswith("expenses-") and b["kind"] == "manual" for b in items))
 
     def test_json_export(self):

@@ -424,9 +424,9 @@ window.I18N_TR = {
 "Not saved",
 "Nicht gespeichert"
 ],
-"Izberi mapo na računalniku, kamor naj se shranjujejo tvoji podatki. Če v mapi že so podatki aplikacije Expenses (ali Stroški), se odprejo.": [
-"Choose a folder on your computer where your data will be saved. If the folder already contains Expenses (or Stroški) data, it is opened.",
-"Wähle einen Ordner auf deinem Computer, in dem deine Daten gespeichert werden. Enthält er schon Daten von Expenses (oder Stroški), werden sie geöffnet."
+"Izberi mapo na računalniku, kamor naj se shranjujejo tvoji podatki. Če v mapi že so podatki aplikacije Expenses, se odprejo.": [
+"Choose a folder on your computer where your data will be saved. If the folder already contains Expenses data, it is opened.",
+"Wähle einen Ordner auf deinem Computer, in dem deine Daten gespeichert werden. Enthält er schon Daten von Expenses, werden sie geöffnet."
 ],
 "Priporočilo: ustvari mapo, npr. <code>Dokumenti\\Expenses</code>, ali izberi mapo v OneDrivu/Google Drivu, da imaš podatke tudi v oblaku.": [
 "Tip: create a folder such as <code>Documents\\Expenses</code>, or choose a folder in OneDrive/Google Drive so your data is also in the cloud.",
@@ -484,9 +484,9 @@ window.I18N_TR = {
 "Loading data from Google Drive …",
 "Daten werden aus Google Drive geladen …"
 ],
-"Vsi podatki so v tvojem Google Drivu v mapi aplikacije (<b>Expenses</b>, pri starejših namestitvah <b>Stroški</b>): datoteka s podatki, varnostne kopije v podmapi <code>backups</code> in preglednica z vsemi vnosi (samo za ogled).": [
-"All data is in your Google Drive in the app folder (<b>Expenses</b>, or <b>Stroški</b> for older installs): the data file, backups in the <code>backups</code> subfolder and a spreadsheet with all entries (view only).",
-"Alle Daten liegen in deinem Google Drive im App-Ordner (<b>Expenses</b>, bei älteren Installationen <b>Stroški</b>): die Datendatei, Sicherungen im Unterordner <code>backups</code> und eine Tabelle mit allen Buchungen (nur zum Ansehen)."
+"Vsi podatki so v tvojem Google Drivu v mapi <b>Expenses</b>: datoteka s podatki, varnostne kopije v podmapi <code>backups</code> in preglednica z vsemi vnosi (samo za ogled).": [
+"All data is in your Google Drive in the folder <b>Expenses</b>: the data file, backups in the <code>backups</code> subfolder and a spreadsheet with all entries (view only).",
+"Alle Daten liegen in deinem Google Drive im Ordner <b>Expenses</b>: die Datendatei, Sicherungen im Unterordner <code>backups</code> und eine Tabelle mit allen Buchungen (nur zum Ansehen)."
 ],
 "Odpri mapo v Drivu": [
 "Open folder in Drive",
@@ -1674,8 +1674,7 @@ window.I18N_PATTERNS = [
   const norm = (s) => String(s).replace(/\s+/g, " ").trim();
 
   function detect() {
-    // "stroski-lang" is the key used before the project was renamed
-    try { const s = localStorage.getItem("expenses-lang") || localStorage.getItem("stroski-lang"); if (LANGS.includes(s)) return s; } catch (e) { /* storage unavailable */ }
+    try { const s = localStorage.getItem("expenses-lang"); if (LANGS.includes(s)) return s; } catch (e) { /* storage unavailable */ }
     const nav = (navigator.language || "sl").slice(0, 2).toLowerCase();
     return LANGS.includes(nav) ? nav : "sl";
   }

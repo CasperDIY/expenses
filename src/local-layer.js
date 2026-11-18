@@ -1,17 +1,14 @@
 /* Local edition: data lives in a folder the user picks on their computer (File System Access API, Chrome/Edge). */
 (function () {
   "use strict";
-  // new folders get expenses-data.json; a folder from before the rename keeps its stroski-podatki.json
-  const DATA_FILES = ["expenses-data.json", "stroski-podatki.json"];
-  let DATA_FILE = DATA_FILES[0];
+  const DATA_FILE = "expenses-data.json";
   const BK_DIR = "backups";
-  const IDB_NAME = "stroski-lokalno", IDB_STORE = "kv";   // pre-rename name kept, so the chosen folder is still remembered
-  // backup names: expenses-YYYY-MM-DD_HHMMSS-<kind>.json; "stroski-…" with Slovenian kinds is the pre-rename format
-  const BK_RE = /^(?:expenses|stroski)-(\d{4}-\d{2}-\d{2})_(\d{2})(\d{2})(\d{2})-(auto|manual|pre-restore|rocno|pred-obnovo)\.json$/;
-  const LEGACY_KINDS = { rocno: "manual", "pred-obnovo": "pre-restore" };
+  const IDB_NAME = "expenses-local", IDB_STORE = "kv";
+  // backup names: expenses-YYYY-MM-DD_HHMMSS-<kind>.json
+  const BK_RE = /^expenses-(\d{4}-\d{2}-\d{2})_(\d{2})(\d{2})(\d{2})-(auto|manual|pre-restore)\.json$/;
   function parseBk(name) {
     const m = BK_RE.exec(name);
-    return m ? { name, kind: LEGACY_KINDS[m[5]] || m[5], created: `${m[1]}T${m[2]}:${m[3]}:${m[4]}` } : null;
+    return m ? { name, kind: m[5], created: `${m[1]}T${m[2]}:${m[3]}:${m[4]}` } : null;
   }
   const T = (s, v) => (window.I18N ? window.I18N.t(s, v) : s);
   const L = (window.LOCAL = { dir: null, bkDir: null, ready: null, dirty: false, writing: null });
@@ -83,9 +80,7 @@
   async function openDir(dir) {
     L.dir = dir;
     L.bkDir = await dir.getDirectoryHandle(BK_DIR, { create: true });
-    let text = null;
-    DATA_FILE = DATA_FILES[0];
-    for (const f of DATA_FILES) { text = await readText(dir, f); if (text !== null) { DATA_FILE = f; break; } }
+    const text = await readText(dir, DATA_FILE);
     let data = null;
     if (text) {
       try { data = JSON.parse(text); } catch (e) { throw new Error(T("Datoteka {f} v tej mapi je poškodovana. Obnovi jo iz mape {b}.", { f: DATA_FILE, b: BK_DIR })); }

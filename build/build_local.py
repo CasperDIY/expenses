@@ -18,7 +18,7 @@ gate = f'''<div class="gate" id="gate" hidden>
     <img src="{icon_uri}" alt="" width="48" height="48">
     <h1 translate="no">Expenses</h1>
     <div id="gate-body">
-      <p>Izberi mapo na računalniku, kamor naj se shranjujejo tvoji podatki. Če v mapi že so podatki aplikacije Expenses (ali Stroški), se odprejo.</p>
+      <p>Izberi mapo na računalniku, kamor naj se shranjujejo tvoji podatki. Če v mapi že so podatki aplikacije Expenses, se odprejo.</p>
       <p class="hint">Priporočilo: ustvari mapo, npr. <code>Dokumenti\\Expenses</code>, ali izberi mapo v OneDrivu/Google Drivu, da imaš podatke tudi v oblaku.</p>
       <div class="gate-actions">
         <button type="button" class="primary" id="gate-reopen" hidden></button>
