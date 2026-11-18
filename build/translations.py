@@ -437,6 +437,10 @@ TR = {
     "Stanje": ("Balance", "Kontostand"),
 
     # ---------- updates ----------
+    "Podpri projekt": ("Support the project", "Projekt unterstützen"),
+    "Expenses je brezplačen in odprtokoden. Če ti pomaga, mi lahko častiš kavo.": (
+        "Expenses is free and open source. If it helps you, you can buy me a coffee.",
+        "Expenses ist kostenlos und quelloffen. Wenn es dir hilft, kannst du mir einen Kaffee spendieren."),
     "Posodobitve": ("Updates", "Aktualisierungen"),
     "Nove različice so objavljene na GitHubu. Aplikacija sama ne pošilja nobenih podatkov – samo prebere, katera je zadnja različica.": (
         "New versions are published on GitHub. The app sends no data – it only reads which version is the latest.",

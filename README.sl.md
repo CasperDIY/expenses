@@ -108,6 +108,14 @@ sh build/all.sh                                   # lokalna, Google in demo razl
 
 Nova izdaja: spremeni `VERSION`, dopolni `CHANGELOG.md`, nato `git tag v1.1.0 && git push --tags`. Več v [angleških navodilih](README.md#publishing-a-release-maintainers).
 
+## Podpora
+
+Expenses je brezplačen in odprtokoden. Če ti prihrani čas ali denar, mi lahko častiš kavo:
+
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-PayPal-0070ba?logo=paypal&logoColor=white)](https://www.paypal.me/tadejgolob)
+
+<a href="https://www.paypal.com/qrcodes/p2pqrc/77HJH6H5FBV5N"><img src="docs/paypal-qr.jpg" alt="PayPal QR koda" width="160"></a>
+
 ## Licenca
 
 [MIT](LICENSE)

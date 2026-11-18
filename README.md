@@ -171,6 +171,14 @@ First time after forking: run `python3 tools/set-repo.py yourname/expenses` so l
 and after the first release make the container package public (*your profile → Packages → expenses → Package settings → Change visibility → Public*),
 otherwise others cannot pull the image. The demo can be published on GitHub Pages: *Settings → Pages → Source: GitHub Actions*.
 
+## Support
+
+Expenses is free and open source. If it saves you time or money, you can buy me a coffee:
+
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-PayPal-0070ba?logo=paypal&logoColor=white)](https://www.paypal.me/tadejgolob)
+
+<a href="https://www.paypal.com/qrcodes/p2pqrc/77HJH6H5FBV5N"><img src="docs/paypal-qr.jpg" alt="PayPal QR code" width="160"></a>
+
 ## License
 
 [MIT](LICENSE)

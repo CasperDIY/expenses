@@ -7,6 +7,7 @@ The section of a version becomes the text of its GitHub release.
 
 - Only the new file names are used: `expenses.db`, `expenses-data.json`, the Drive folder *Expenses* and backups named `expenses-…`
 - Home Assistant endpoint returns English keys only (`left_to_spend`, `per_day`, `goals` …)
+- "Buy me a coffee" link in Settings and in the README
 
 ## [1.0.0] – 2026-11-15
 
