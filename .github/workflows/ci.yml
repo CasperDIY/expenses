@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Tests (server and builds)
+        run: python -m unittest discover -s tests -v
+      - name: app/static/i18n.js is up to date with build/translations.py
+        run: |
+          sh build/all.sh
+          git diff --exit-code app/static/i18n.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: JavaScript syntax
+        run: |
+          for f in app/static/*.js src/*.js; do node --check "$f"; done
+          cp dist/Code.gs /tmp/Code.js && node --check /tmp/Code.js
+      - name: Docker image builds
+        run: docker build -t expenses:test . && docker run --rm expenses:test python -c "import server"
