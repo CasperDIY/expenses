@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f3a2e">
+<title>Expenses</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand" translate="no"><img src="/icon.svg" alt=""><span>Expenses</span></div>
+  <nav class="tabs" role="tablist">
+    <button data-tab="month" class="active">Mesec</button>
+    <button data-tab="overview">Pregled</button>
+    <button data-tab="goals">Cilji</button>
+    <button data-tab="months">Upravljanje mesecev</button>
+    <button data-tab="settings">Nastavitve</button>
+  </nav>
+</header>
+
+<main>
+  <div class="update-bar" id="update-bar" hidden></div>
+  <!-- ======================= MONTH ======================= -->
+  <section id="tab-month" class="tab active">
+    <div class="month-nav">
+      <button class="icon-btn" id="prev-month" aria-label="Prejšnji mesec">‹</button>
+      <h1 id="month-title">—</h1>
+      <button class="icon-btn" id="next-month" aria-label="Naslednji mesec">›</button>
+      <button class="ghost small" id="today-month">Danes</button>
+    </div>
+
+    <div class="hero card">
+      <div>
+        <div class="label">Še na voljo ta mesec</div>
+        <div class="big" id="m-available">—</div>
+        <div class="sub" id="m-perday"></div>
+      </div>
+      <div class="hero-side">
+        <div>
+          <label class="carry-toggle" for="carry-on">
+            <input type="checkbox" id="carry-on" role="switch">
+            <span class="label" id="carry-label">Prenos iz prejšnjega meseca</span>
+          </label>
+          <b id="m-carry">—</b>
+        </div>
+        <div><span class="label">Prosto (izven proračunov)</span><b id="m-free">—</b></div>
+        <div><span class="label">Še za varčevanje</span><b id="m-planned">—</b></div>
+        <div><span class="label">Neplačani računi</span><b id="m-unpaid">—</b></div>
+      </div>
+      <details class="calc" id="calc">
+        <summary>Kako je izračunano</summary>
+        <table id="calc-table"></table>
+      </details>
+    </div>
+
+    <div class="account card" id="account-bar">
+      <div class="acc-main">
+        <span class="label">Stanje na računu</span>
+        <div class="acc-vals" id="acc-vals"></div>
+      </div>
+      <button type="button" class="ghost small" id="acc-edit">Uskladi z banko</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat inc"><span>Prihodki</span><b id="m-income">—</b></div>
+      <div class="stat exp"><span>Stroški</span><b id="m-expense">—</b></div>
+      <div class="stat sav"><span>Varčevanje</span><b id="m-saving">—</b></div>
+      <div class="stat bal"><span>Bilanca</span><b id="m-balance">—</b></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head">
+          <h2>Vnosi</h2>
+          <button class="primary" id="add-entry">+ Nov vnos</button>
+        </div>
+        <div class="filter" id="entry-filter">
+          <button data-f="all" class="active">Vse</button>
+          <button data-f="income">Prihodki</button>
+          <button data-f="expense">Stroški</button>
+          <button data-f="saving">Varčevanje</button>
+        </div>
+        <div class="fill-hint" id="fill-hint" hidden>
+          <span>Ta mesec nima vnosov iz ponavljajočih predlog.</span>
+          <button type="button" class="ghost small" id="fill-month">Napolni iz predlog</button>
+        </div>
+        <ul class="entries" id="entries"></ul>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <h2>Stroški po kategorijah</h2>
+          <div id="cat-bars"></div>
+        </div>
+        <div class="card">
+          <h2>Cilji ta mesec</h2>
+          <div id="month-goals"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= OVERVIEW ======================= -->
+  <section id="tab-overview" class="tab">
+    <div class="month-nav">
+      <button class="icon-btn" id="prev-year" aria-label="Prejšnje leto">‹</button>
+      <h1 id="year-title">—</h1>
+      <button class="icon-btn" id="next-year" aria-label="Naslednje leto">›</button>
+    </div>
+    <div class="stats">
+      <div class="stat inc"><span>Prihodki</span><b id="y-income">—</b></div>
+      <div class="stat exp"><span>Stroški</span><b id="y-expense">—</b></div>
+      <div class="stat sav"><span>Varčevanje</span><b id="y-saving">—</b></div>
+      <div class="stat bal"><span>Bilanca</span><b id="y-balance">—</b></div>
+    </div>
+    <div class="card">
+      <h2>Po mesecih</h2>
+      <div class="legend">
+        <span class="lg inc">Prihodki</span><span class="lg exp">Stroški</span><span class="lg sav">Varčevanje</span>
+      </div>
+      <div id="chart-months" class="chart"></div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h2>Stroški po kategorijah (leto)</h2>
+        <div id="chart-cats"></div>
+      </div>
+      <div class="card">
+        <h2>Skupni prihranki</h2>
+        <div id="chart-savings" class="chart compact"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Po letih</h2>
+      <div class="legend">
+        <span class="lg inc">Prihodki</span><span class="lg exp">Stroški</span><span class="lg sav">Varčevanje</span>
+      </div>
+      <div id="chart-years" class="chart"></div>
+    </div>
+  </section>
+
+  <!-- ======================= GOALS ======================= -->
+  <section id="tab-goals" class="tab">
+    <div class="card-head page-head">
+      <h1>Cilji varčevanja</h1>
+      <button class="primary" id="add-goal">+ Nov cilj</button>
+    </div>
+    <div class="filter goal-filter" id="goal-filter">
+      <button type="button" data-gf="active" class="active">Aktivni</button>
+      <button type="button" data-gf="archived">Arhivirani</button>
+      <button type="button" data-gf="all">Vsi</button>
+    </div>
+    <div id="goals-list" class="goals-grid"></div>
+  </section>
+
+  <!-- ======================= MONTH MANAGEMENT ======================= -->
+  <section id="tab-months" class="tab">
+    <div class="page-head">
+      <h1>Upravljanje mesecev</h1>
+    </div>
+    <div class="info-grid">
+      <div class="info">
+        <b>Osveži iz predlog</b>
+        <span>Odstrani vnose, ki so nastali iz ponavljajočih predlog, in jih ustvari znova po trenutnih predlogah. Tvoji ročni vnosi ostanejo.</span>
+      </div>
+      <div class="info danger-info">
+        <b>Izbriši mesec</b>
+        <span>Odstrani vse vnose meseca, tudi ročne, in mesec izgine s seznama. Ko ga znova odpreš v zavihku Mesec, se sam napolni po trenutnih predlogah.</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="bulk-bar">
+        <div class="filter" id="month-select">
+          <span class="bulk-label">Označi:</span>
+          <button type="button" data-sel="future">Prihodnje</button>
+          <button type="button" data-sel="nomanual" title="Meseci, ki imajo samo vnose iz predlog">Brez ročnih vnosov</button>
+          <button type="button" data-sel="all">Vse</button>
+          <button type="button" data-sel="none">Nič</button>
+        </div>
+        <div class="bulk-actions">
+          <button type="button" class="ghost small" id="bulk-refresh" disabled>Osveži označene</button>
+          <button type="button" class="ghost small danger" id="bulk-delete" disabled>Izbriši označene</button>
+        </div>
+      </div>
+      <ul class="months" id="months-list"></ul>
+    </div>
+  </section>
+
+  <!-- ======================= SETTINGS ======================= -->
+  <section id="tab-settings" class="tab">
+    <div class="card lang-card">
+      <div class="card-head">
+        <div>
+          <h2>Jezik</h2>
+          <p class="hint">Jezik vmesnika na tej napravi.</p>
+        </div>
+        <select id="lang-select" aria-label="Jezik / Language / Sprache">
+          <option value="sl">Slovenščina</option>
+          <option value="en">English</option>
+          <option value="de">Deutsch</option>
+        </select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>Ponavljajoči prihodki in računi</h2>
+          <p class="hint">Plača, najemnina, elektrika, naročnine … Samodejno se dodajo v vsak mesec.</p>
+        </div>
+        <button class="primary" id="add-recurring">+ Dodaj</button>
+      </div>
+      <ul class="entries" id="recurring-list"></ul>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>Kategorije in mesečni proračuni</h2>
+          <p class="hint">Proračun = koliko želiš največ porabiti na mesec v tej kategoriji (0 = brez omejitve).</p>
+        </div>
+        <button class="primary" id="add-category">+ Dodaj</button>
+      </div>
+      <ul class="entries" id="category-list"></ul>
+    </div>
+    <div class="card" id="import-card">
+      <div class="card-head">
+        <div>
+          <h2>Uvoz iz Excela</h2>
+          <p class="hint">Tabela z enim listom na mesec (npr. "Oktober26") ter stolpci Prihodki, Fiksni odhodki in variabilni stroški. Pred uvozom vidiš predogled. Ponoven uvoz istega meseca zamenja prej uvožene vnose, ročni vnosi ostanejo.</p>
+        </div>
+        <label class="btn primary file-btn" for="imp-file">Izberi datoteko</label>
+        <input type="file" id="imp-file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+      </div>
+      <div id="imp-preview" hidden>
+        <h3 class="sub-h">Meseci</h3>
+        <div class="table-wrap"><table class="imp-table" id="imp-months"></table></div>
+        <p class="hint" id="imp-skipped"></p>
+        <h3 class="sub-h">Kategorije</h3>
+        <p class="hint">Vsak stolpec iz Excela poveži z obstoječo kategorijo ali pusti "Nova", da se ustvari.</p>
+        <div class="imp-map" id="imp-map"></div>
+        <h3 class="sub-h">Možnosti</h3>
+        <label class="check"><input type="radio" name="imp-carry" id="imp-carry-sheet" value="sheet" checked>
+          <span>Kot v Excelu: prenos za uvožene mesece izklopi, vrstica "Od prejšnjega meseca" ostane prihodek</span></label>
+        <label class="check"><input type="radio" name="imp-carry" id="imp-carry-auto" value="auto">
+          <span>Samodejni prenos aplikacije: vrstice "Od prejšnjega meseca" izpusti</span></label>
+        <label class="check" id="imp-tpl-wrap"><input type="checkbox" id="imp-tpl"> <span id="imp-tpl-label"></span></label>
+        <div class="imp-actions">
+          <button type="button" class="ghost" id="imp-cancel">Prekliči</button>
+          <button type="button" class="primary" id="imp-go">Uvozi</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" id="backup-card">
+      <div class="card-head">
+        <div>
+          <h2>Varnostne kopije</h2>
+          <p class="hint" id="bk-status">Nalagam …</p>
+        </div>
+        <button type="button" class="primary" id="bk-now">Naredi kopijo zdaj</button>
+      </div>
+      <form id="bk-form" class="bk-form">
+        <div class="field">
+          <label for="bk-freq">Samodejna kopija</label>
+          <select id="bk-freq">
+            <option value="off">Izklopljeno</option>
+            <option value="daily">Vsak dan</option>
+            <option value="weekly">Vsak teden</option>
+            <option value="monthly">Vsak mesec</option>
+          </select>
+        </div>
+        <div class="field" id="bk-weekday-f">
+          <label for="bk-weekday">Dan v tednu</label>
+          <select id="bk-weekday">
+            <option value="0">Ponedeljek</option><option value="1">Torek</option><option value="2">Sreda</option>
+            <option value="3">Četrtek</option><option value="4">Petek</option><option value="5">Sobota</option><option value="6">Nedelja</option>
+          </select>
+        </div>
+        <div class="field" id="bk-monthday-f">
+          <label for="bk-monthday">Dan v mesecu</label>
+          <input id="bk-monthday" type="number" min="1" max="28">
+        </div>
+        <div class="field" id="bk-time-f">
+          <label for="bk-time">Ura</label>
+          <input id="bk-time" type="time">
+        </div>
+        <div class="field" id="bk-keep-f">
+          <label for="bk-keep">Obdrži zadnjih</label>
+          <input id="bk-keep" type="number" min="1" max="365">
+        </div>
+        <button type="submit" class="ghost" id="bk-save">Shrani nastavitve</button>
+      </form>
+      <ul class="entries bk-list" id="bk-list"></ul>
+      <p class="hint" id="bk-dir"></p>
+    </div>
+    <div class="card">
+      <h2>Podatki</h2>
+      <p class="hint">Izvoz vseh vnosov (odpre se v Excelu).</p>
+      <div class="data-actions">
+        <a class="btn ghost" href="/api/export.csv">Izvozi CSV</a>
+        <a class="btn ghost" href="/api/export.json">Izvozi za Google / lokalno (.json)</a>
+      </div>
+      <p class="hint">Datoteko .json uvoziš v Google ali lokalni različici: Nastavitve → Varnostne kopije → Uvozi podatke iz datoteke.</p>
+    </div>
+    <div class="card" id="update-card" hidden>
+      <h2>Posodobitve</h2>
+      <p class="hint">Nove različice so objavljene na GitHubu. Aplikacija sama ne pošilja nobenih podatkov – samo prebere, katera je zadnja različica.</p>
+      <label class="check"><input type="checkbox" id="upd-auto"> Ob odprtju preveri, ali je na voljo nova različica</label>
+      <div class="data-actions">
+        <button type="button" class="ghost" id="upd-check">Preveri zdaj</button>
+      </div>
+      <div id="upd-result" hidden></div>
+    </div>
+    <p class="hint version" id="app-version"></p>
+  </section>
+</main>
+
+<!-- ======================= DIALOG ======================= -->
+<dialog id="dlg">
+  <form id="dlg-form" method="dialog">
+    <h2 id="dlg-title"></h2>
+    <div id="dlg-body"></div>
+    <p class="error" id="dlg-error"></p>
+    <div class="dlg-actions">
+      <button type="button" class="danger ghost" id="dlg-delete">Izbriši</button>
+      <span class="spacer"></span>
+      <button type="button" class="ghost" id="dlg-cancel">Prekliči</button>
+      <button type="submit" class="primary" id="dlg-save">Shrani</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" role="status"></div>
+<script src="/i18n.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

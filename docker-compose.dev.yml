@@ -1,0 +1,14 @@
+# For development: builds the image from this checkout and reads the code live from ./app.
+#   docker compose -f docker-compose.dev.yml up --build
+services:
+  expenses:
+    build: .
+    container_name: expenses-dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/data
+      - ./app:/app:ro
+      - ./VERSION:/VERSION:ro
+    environment:
+      TZ: Europe/Ljubljana

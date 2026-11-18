@@ -1,0 +1,36 @@
+# Expenses – personal budget. Start with:  docker compose up -d   then open http://SERVER-IP:8080
+services:
+  expenses:
+    image: ghcr.io/casperdiy/expenses:latest
+    container_name: expenses
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      # all data (database and backups) is kept in this folder next to docker-compose.yml
+      - ./data:/data
+    environment:
+      TZ: Europe/Ljubljana
+      # Login for the web page. Leave both empty only on a trusted home network.
+      APP_USER: ""
+      APP_PASSWORD: ""
+      # Token for Home Assistant (/api/ha/summary). Any long random string; empty = endpoint disabled.
+      API_TOKEN: ""
+      # Owner of the files in ./data (Synology: run "id" over SSH to see yours; 1000 works on most systems)
+      # PUID: "1026"
+      # PGID: "100"
+    # Optional automatic updates with Watchtower: uncomment this label and the watchtower service below.
+    # labels:
+    #   - com.centurylinklabs.watchtower.enable=true
+
+  # watchtower:
+  #   image: containrrr/watchtower
+  #   container_name: watchtower
+  #   restart: unless-stopped
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   environment:
+  #     TZ: Europe/Ljubljana
+  #     WATCHTOWER_LABEL_ENABLE: "true"
+  #     WATCHTOWER_CLEANUP: "true"
+  #     WATCHTOWER_SCHEDULE: "0 0 4 * * *"   # every day at 04:00

@@ -1,0 +1,4 @@
+*
+!app/
+!VERSION
+app/**/__pycache__
